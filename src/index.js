@@ -1,17 +1,45 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import Webcam from "react-webcam";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+import "./styles.css";
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const videoConstraints = {
+    width: 1280,
+    height: 720,
+    facingMode: "user"
+};
+
+function App() {
+    const webcamRef = React.useRef(null);
+    const [image, setImage] = useState(undefined);
+    const capture = React.useCallback(() => {
+        const imageSrc = webcamRef.current.getScreenshot();
+        setImage(imageSrc);
+        console.log(imageSrc);
+    }, [webcamRef]);
+    return (
+        <div>
+            {!image ? (
+                <div>
+                    <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
+                        videoConstraints={videoConstraints}
+                    />
+                </div>
+            ) : (
+                <img src={image} alt="webcam test" />
+            )}
+            <br />
+            <button onClick={() => (!image ? capture() : setImage(undefined))}>
+                {!image ? "Capture photo" : "take photo"}
+            </button>
+        </div>
+    );
+}
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App />, rootElement);
+
